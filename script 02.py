@@ -8,7 +8,7 @@ from docx import Document
 from docx2pdf import convert
 from PyPDF2 import PdfReader, PdfWriter
 import re
-
+import xlsxwriter
 # === Caminho base do script ===
 base_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -23,14 +23,26 @@ filtro_colunas = ['Nome', 'Data de nascimento', 'CPF', 'RG', 'Orgão expedidor',
 
 data_frame_2 = data_frame[filtro_colunas].copy()
 
-# # === APLICANDO FILTRO DE PERFIL ===
-# data_frame_2['Perfil 1412/2025'] = data_frame_2['Perfil 1412/2025'].str.strip().str.lower()
-# perfil_desejado = 'analista/desenvolvedor - .net'
-# data_frame_filtrado_final = data_frame_2[data_frame_2['Perfil 1412/2025'] == perfil_desejado]
+# --- NOVO TRATAMENTO ADICIONADO ---
+# Converte as colunas de data para o tipo datetime.
+# errors='coerce' transforma dados inválidos em NaT (Not a Time) sem gerar erro.
+data_frame_2['Data de nascimento'] = pd.to_datetime(data_frame_2['Data de nascimento'], errors='coerce').dt.date
+data_frame_2['Data de expedição'] = pd.to_datetime(data_frame_2['Data de expedição'], errors='coerce').dt.date
 
-# # # === SALVANDO PLANILHA FILTRADA ===
-# nome_arquivo_saida = 'CARGOS_FILTRADOS.xlsx'
-# data_frame_filtrado_final.to_excel(os.path.join(base_dir, nome_arquivo_saida), index=False)
+
+# === APLICANDO FILTRO DE PERFIL ===
+data_frame_2['Perfil Contrato '] = data_frame_2['Perfil Contrato '].str.strip().str.lower()
+perfil_desejado = 'analista/desenvolvedor - alta plataforma'
+data_frame_filtrado_final = data_frame_2[data_frame_2['Perfil Contrato '] == perfil_desejado]
+
+# # === SALVANDO PLANILHA FILTRADA ===
+nome_arquivo_saida = 'CARGOS_FILTRADOS.xlsx'
+
+# UTILIZANDO O EXCELWRITER PARA GARANTIR O FORMATO DATA NO ARQUIVO DE SAIDA
+with pd.ExcelWriter(os.path.join(base_dir, nome_arquivo_saida),
+                    engine='xlsxwriter',
+                    date_format='dd/mm/yyyy') as writer:
+    data_frame_filtrado_final.to_excel(writer, index=False)
 
 # # === Função de substituição de texto no Word ===
 # def substituir_texto(doc, antigo, novo):
