@@ -13,14 +13,15 @@ import re
 base_dir = os.path.dirname(os.path.abspath(__file__))
 
 # === LENDO A BASE DE DADOS ===
-data_frame = pd.read_excel(os.path.join(base_dir, 'BASE 1412.xlsx'))
+data_frame = pd.read_excel(os.path.join(base_dir, 'BASE 2025.xlsx'))
 
-# # === FILTRANDO COLUNAS NECESSÁRIAS ===
-# filtro_colunas = ['Nome', 'Data de nascimento', 'CPF', 'RG', 'Orgão expedidor',
-#                   'Data de expedição', 'PIS/NIS', 'E-mail Corporativo', 'Telefone',
-#                   'Sigla', 'Perfil 1412/2025']
 
-# data_frame_2 = data_frame[filtro_colunas].copy()
+# === FILTRANDO COLUNAS NECESSÁRIAS ===
+filtro_colunas = ['Nome', 'Data de nascimento', 'CPF', 'RG', 'Orgão expedidor',    
+       'Data de expedição', 'PIS/NIS', 'E-mail Corporativo', 'Telefone',
+       'Sigla', 'Perfil Contrato ']
+
+data_frame_2 = data_frame[filtro_colunas].copy()
 
 # # === APLICANDO FILTRO DE PERFIL ===
 # data_frame_2['Perfil 1412/2025'] = data_frame_2['Perfil 1412/2025'].str.strip().str.lower()
