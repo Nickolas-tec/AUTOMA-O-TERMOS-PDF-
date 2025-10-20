@@ -1,3 +1,5 @@
+
+
 # CARREGAMENTO DE PACOTES E MODULOS 
 import pandas as pd
 import numpy as np
@@ -59,41 +61,70 @@ def substituir_texto(doc, antigo, novo):
 
 # === Limpeza de nome para evitar erros com caracteres inválidos ===
 def limpar_nome(nome):
-    return re.sub(r'[\\/*?:\"<>|]', "_", nome)
+    return re.sub(r'[\\/*?:"<>|]', "_", nome)
 
 # === LENDO OS DADOS DO ARQUIVO FILTRADO ===
 df = pd.read_excel(os.path.join(base_dir, nome_arquivo_saida))
 modelo_path = os.path.join(base_dir, "FICUS.docx")
 
-# # === LOOP PARA CADA COLABORADOR ===
+# === Limpa o nome do perfil para usar como nome de diretório ===
+perfil_dir_limpo = limpar_nome(perfil_desejado)
+
+# === LOOP PARA CADA COLABORADOR ===
 for idx, dados in df.iterrows():
     try:
         colaborador = dados["Nome"].strip()
         colaborador_limpo = limpar_nome(colaborador)
         print(f"📄 Gerando documento para: {colaborador}")
 
-        # === Criar pasta do colaborador ===
-        pasta_colab = os.path.join(base_dir, colaborador_limpo)
+        # === Criar estrutura de pastas: /NOME_DO_PERFIL/NOME_DO_COLABORADOR ===
+        pasta_colab = os.path.join(base_dir, perfil_dir_limpo, colaborador_limpo)
         os.makedirs(pasta_colab, exist_ok=True)
 
         # === Abrir modelo e substituir dados ===
         doc = Document(modelo_path)
-        substituir_texto(doc, "RICARDO CARBONESI", colaborador)
-        substituir_texto(doc, "124.122.068-99", dados["CPF"])
-        substituir_texto(doc, "155892186", dados["RG"])
+
+        # --- Preenchimento dos dados do colaborador ---
+        substituir_texto(doc, "COLABORADOR", colaborador)
+        substituir_texto(doc, "000.000.000-00", dados["CPF"])
+        substituir_texto(doc, "000000000", dados["RG"])
         substituir_texto(doc, "SSP SP", dados["Orgão expedidor"])
         substituir_texto(doc, "ANALISTA DEV POWER BUILDER", perfil_desejado.upper())
-        substituir_texto(doc, "121.44236.62.5", dados["PIS/NIS"])
-        substituir_texto(doc, "16 / 03 / 1967", str(dados["Data de nascimento"]))
+        substituir_texto(doc, "000.00000.00.0", dados["PIS/NIS"])
         substituir_texto(doc, "fulano@gmail.com", dados["E-mail Corporativo"])
         substituir_texto(doc, "000-000-00", dados["Telefone"])
-        substituir_texto(doc, "SIEMP", dados["Sigla"])
+        substituir_texto(doc, "ABC", dados["Sigla"])
+
+        # --- Preenchimento de datas por componentes (dia, mês, ano) ---
+        # Data de Nascimento
+        if pd.notna(dados["Data de nascimento"]):
+            substituir_texto(doc, "dia_nasc", dados["Data de nascimento"].strftime('%d'))
+            substituir_texto(doc, "mes_nasc", dados["Data de nascimento"].strftime('%m'))
+            substituir_texto(doc, "ano_nasc", dados["Data de nascimento"].strftime('%Y'))
+        else:
+            substituir_texto(doc, "dia_nasc", "")
+            substituir_texto(doc, "mes_nasc", "")
+            substituir_texto(doc, "ano_nasc", "")
+
+        # Data de Expedição
+        if pd.notna(dados["Data de expedição"]):
+            substituir_texto(doc, "dia_expedicao", dados["Data de expedição"].strftime('%d'))
+            substituir_texto(doc, "mes_expedicao", dados["Data de expedição"].strftime('%m'))
+            substituir_texto(doc, "ano_expedicao", dados["Data de expedição"].strftime('%Y'))
+        else:
+            substituir_texto(doc, "dia_expedicao", "")
+            substituir_texto(doc, "mes_expedicao", "")
+            substituir_texto(doc, "ano_expedicao", "")
 
         # === Salvar DOCX personalizado ===
         novo_docx = os.path.join(pasta_colab, f"{colaborador_limpo}_FICUS.docx")
         doc.save(novo_docx)
 
+        # === Converter para PDF com docx2pdf ===
+        novo_pdf = os.path.join(pasta_colab, f"{colaborador_limpo}_FICUS.pdf")
+        convert(novo_docx, novo_pdf)
+
     except Exception as e:
         print(f"❌ Erro ao gerar para {colaborador}: {e}")
 
-# print("✅ Todos os PDFs foram gerados com sucesso!")
+print("✅ Todos os PDFs foram gerados com sucesso!")
