@@ -47,17 +47,24 @@ with pd.ExcelWriter(os.path.join(base_dir, nome_arquivo_saida),
 
 # === Função de substituição de texto no Word ===
 def substituir_texto(doc, antigo, novo):
-    def replace_in_runs(runs, antigo, novo):
+    # Garante que valores nulos (NaN, None, NaT) sejam tratados como string vazia
+    if pd.isna(novo):
+        novo_texto = ""
+    else:
+        novo_texto = str(novo)
+
+    def replace_in_runs(runs, antigo, novo_a_inserir):
         for run in runs:
             if antigo in run.text:
-                run.text = run.text.replace(antigo, str(novo))
+                run.text = run.text.replace(antigo, novo_a_inserir)
+
     for p in doc.paragraphs:
-        replace_in_runs(p.runs, antigo, novo)
+        replace_in_runs(p.runs, antigo, novo_texto)
     for tabela in doc.tables:
         for linha in tabela.rows:
             for celula in linha.cells:
                 for p in celula.paragraphs:
-                    replace_in_runs(p.runs, antigo, novo)
+                    replace_in_runs(p.runs, antigo, novo_texto)
 
 # === Limpeza de nome para evitar erros com caracteres inválidos ===
 def limpar_nome(nome):
