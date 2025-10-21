@@ -32,7 +32,7 @@ data_frame_2['Data de expedição'] = pd.to_datetime(data_frame_2['Data de exped
 
 # === APLICANDO FILTRO DE PERFIL ===
 data_frame_2['Perfil Contrato '] = data_frame_2['Perfil Contrato '].str.strip().str.lower()
-perfil_desejado = 'analista/desenvolvedor - alta plataforma'
+perfil_desejado = 'especialista - identidade e segurança'
 data_frame_filtrado_final = data_frame_2[data_frame_2['Perfil Contrato '] == perfil_desejado]
 
 # # === SALVANDO PLANILHA FILTRADA ===
