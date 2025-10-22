@@ -70,15 +70,11 @@ O processo segue um fluxo de ETL bem definido:
     source venv/bin/activate  # No Windows: venv\Scripts\activate
     ```
 
-3.  **Instale as dependências:**
-    ```bash
-    pip install -r requirements.txt
-    ```
 
-4.  **Execute o script:**
+3.  **Execute o script:**
     ```bash
     python "script 02.py"
     ```
 
-5.  **Verifique a saída:** Após a execução, uma nova pasta será criada no diretório do projeto com o nome do perfil filtrado. Dentro dela, haverá subpastas para cada colaborador contendo os arquivos `.docx` e `.pdf` gerados.
+4.  **Verifique a saída:** Após a execução, uma nova pasta será criada no diretório do projeto com o nome do perfil filtrado. Dentro dela, haverá subpastas para cada colaborador contendo os arquivos `.docx` e `.pdf` gerados.
 
